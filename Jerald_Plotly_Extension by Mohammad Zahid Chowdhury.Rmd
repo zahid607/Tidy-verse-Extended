@@ -1,0 +1,88 @@
+---
+title: "TIDYVERSE PLOTLY"
+author: "Jerald Melukkaran"
+date: "2025-04-21"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(plotly))
+```
+
+#### Introduction 
+
+In this vignette we observe how plotly can be used to animate plots which can be a great way to visualize changes in a dataset. Here i use it to visualize changes in genres of the top selling games across the years 2000 to 2015. You can either click play to automatically run through the years, or use the slider. 
+
+
+```{r warning=FALSE}
+
+library(plotly)
+library(dplyr)
+
+
+vgsales <- read.csv("https://raw.githubusercontent.com/jerryjerald27/Data-607/refs/heads/main/Tidyverse/vgsales.csv")
+
+vgsales_filtered <- vgsales %>% filter(Year >= 2000 & Year <= 2015)
+
+plot_ly(data = vgsales_filtered, 
+        x = ~Global_Sales, 
+        y = ~Genre, 
+        color = ~Genre, 
+        frame = ~Year, 
+        type = 'bar', 
+        orientation = 'h', 
+        marker = list(line = list(width = 10))) %>%
+  layout(
+    xaxis = list(title = 'Global Sales (millions)'),
+    yaxis = list(title = 'Game Genre'),
+    title = 'Top Selling Game Genres (2000 to Present)',
+    updatemenus = list(
+      list(
+        type = 'buttons',
+        showactive = FALSE,
+        buttons = list(
+          list(method = 'animate', args = list(NULL, list(frame = list(duration = 1000, redraw = TRUE), mode = 'immediate')))
+        )
+      )
+    )
+  )
+
+```
+
+# Additional Analysis by Mohammad Zahid Chowdhury.
+
+# This is a collaborative work. The initial analysis done by Jerald Melukkaran and I did some descriptive analysis.I dowloaded this rmd file from Github and did some descriptive analysis. I also submitted my Github handle. 
+
+
+
+
+# Top-Selling Genres Overall (2000–2015):
+
+```{r}
+vgsales_filtered %>%
+  group_by(Genre) %>%
+  summarise(Total_Sales = sum(Global_Sales, na.rm = TRUE)) %>%
+  arrange(desc(Total_Sales))
+
+```
+
+
+
+
+# Yearly Top Genre:
+
+
+```{r}
+
+vgsales_filtered %>%
+  group_by(Year, Genre) %>%
+  summarise(Yearly_Sales = sum(Global_Sales, na.rm = TRUE)) %>%
+  slice_max(Yearly_Sales, n = 1)
+
+```
+
+
